@@ -5,7 +5,7 @@
 
   const NAV = [
     ['Overview', [['#/', '◈', 'Dashboard'], ['#/library', '⚙', 'Equipment Training'], ['#/levels', '▤', 'Training Levels']]],
-    ['Real-time', [['#/live', '◉', 'Live Simulators'], ['#/3d', '⬢', '3D Machine Explorer'], ['#/dicom-viewer', '▣', 'DICOM Viewer']]],
+    ['Real-time', [['#/live', '◉', 'Live Simulators'], ['#/3d', '⬢', '3D Machine Explorer'], ['#/oem', '◆', 'CT & MRI Models'], ['#/dicom-viewer', '▣', 'DICOM Viewer']]],
     ['Service', [['#/service', '⚒', 'Service Engineer Mode'], ['#/simlab', '⚠', 'Fault Simulation Lab'], ['#/cases', '☎', 'Service Cases'], ['#/errors', '⌕', 'Error Code Explorer']]],
     ['Maintenance & QA', [['#/pm', '✓', 'Preventive Maintenance'], ['#/qa', '◎', 'QA & Performance'], ['#/safety', '⚡', 'Electrical & Safety']]],
     ['Fundamentals', [['#/tools', '⚖', 'Service Tools Lab'], ['#/dicom', '⇄', 'DICOM / Network'], ['#/image-quality', '◐', 'Image Quality'], ['#/manufacturers', '⌂', 'Manufacturers']]],
@@ -35,7 +35,7 @@
     [/^#\/dicom$/, 'dicom'], [/^#\/image-quality$/, 'imageQuality'], [/^#\/manufacturers(?:\/([\w-]+))?$/, 'manufacturers'],
     [/^#\/assets$/, 'assets'], [/^#\/asset\/([\w-]+)$/, 'asset'], [/^#\/reports$/, 'reports'], [/^#\/report\/([\w-]+)$/, 'report'],
     [/^#\/documents$/, 'documents'], [/^#\/assessment(?:\/([\w-]+))?$/, 'assessment'], [/^#\/progress$/, 'progress'], [/^#\/admin$/, 'admin'],
-    [/^#\/live$/, 'liveHub'], [/^#\/live\/([\w-]+)$/, 'live'], [/^#\/3d$/, 'x3dHub'], [/^#\/3d\/([\w-]+)$/, 'x3d'], [/^#\/dicom-viewer$/, 'dicomViewer']
+    [/^#\/live$/, 'liveHub'], [/^#\/live\/([\w-]+)$/, 'live'], [/^#\/3d$/, 'x3dHub'], [/^#\/3d\/([\w-]+)$/, 'x3d'], [/^#\/dicom-viewer$/, 'dicomViewer'], [/^#\/oem$/, 'oemHub'], [/^#\/oem\/([\w-]+)$/, 'oem']
   ];
 
   function route() {

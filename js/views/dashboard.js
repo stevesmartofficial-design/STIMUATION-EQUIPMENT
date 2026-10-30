@@ -86,6 +86,7 @@
     <div class="live-grid" style="margin-bottom:22px">
       <a class="live-card" href="#/live"><span class="live-pulse"></span><span class="lc-ic">◉</span><b>Live simulators</b><small>Operate 8 machines in real time with sound and alarms, inject faults and diagnose mystery faults.</small></a>
       <a class="live-card" href="#/3d"><span class="lc-ic">⬢</span><b>3D machine explorer</b><small>Rotate, X-ray and explode the machine in 3D. Click any part for service detail, then watch a scan.</small></a>
+      <a class="live-card" href="#/oem"><span class="lc-ic">◆</span><b>GE · Siemens · Philips CT &amp; MRI</b><small>Real model families: published specs, 3D replica, and a service-parts catalogue for every major unit.</small></a>
       <a class="live-card" href="#/dicom-viewer"><span class="lc-ic">▣</span><b>DICOM viewer</b><small>Open .dcm studies: window/level, MPR, measurements, ROI and the tag browser, all in your browser.</small></a>
     </div>
 
@@ -178,7 +179,7 @@
       <div class="warn-banner">⚠ Model-specific procedure required. The generic architecture below is for understanding the system class only.</div>
       ${models.length ? `<table class="table"><thead><tr><th>Equipment</th><th>Model</th><th>Architecture</th><th>Manuals</th><th>PM</th><th>Error codes</th><th>Troubleshooting</th><th>Parts</th></tr></thead><tbody>
       ${models.map(md => { const e = BME.equipment[md.equipment]; if (!e) return ''; const errs = Store.s.custom.errors.filter(x => x.model === md.id).length;
-        return `<tr><td>${esc(e.name)}</td><td>${esc(md.name)}${md.placeholder ? ' <span class="tag">placeholder</span>' : ''}</td>
+        return `<tr><td>${esc(e.name)}</td><td>${md.oem ? `<a href="#/oem/${md.oem}"><b>${esc(md.name)}</b></a> <span class="tag tag-ok">specs + FRU</span>` : esc(md.name)}${md.placeholder ? ' <span class="tag">placeholder</span>' : ''}</td>
         <td><a href="#/eq/${e.id}/components">Generic ${esc(e.name)} →</a></td><td><a href="#/documents">Library</a></td>
         <td><span class="tag tag-warn">Model-specific</span></td><td>${errs ? `<a href="#/errors">${errs} code(s)</a>` : '<span class="muted">None loaded</span>'}</td>
         <td><a href="#/service/${e.id}">Generic flows</a></td><td><span class="muted">Per service manual</span></td></tr>`; }).join('')}</tbody></table>` : '<p class="muted">No models recorded. Add models in Admin.</p>'}

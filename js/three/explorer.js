@@ -66,7 +66,7 @@
     /* Ring/annulus extruded along z (gantry, bore). */
     K.ring = (Ro, Ri, d, m, p, r, square) => {
       const s = new T.Shape();
-      if (square) { const a = Ro, rr = Ro * .25; s.moveTo(-a + rr, -a); s.lineTo(a - rr, -a); s.quadraticCurveTo(a, -a, a, -a + rr); s.lineTo(a, a - rr); s.quadraticCurveTo(a, a, a - rr, a); s.lineTo(-a + rr, a); s.quadraticCurveTo(-a, a, -a, a - rr); s.lineTo(-a, -a + rr); s.quadraticCurveTo(-a, -a, -a + rr, -a); }
+      if (square) { const a = Ro, rr = Ro * (typeof square === 'number' ? square : .25); s.moveTo(-a + rr, -a); s.lineTo(a - rr, -a); s.quadraticCurveTo(a, -a, a, -a + rr); s.lineTo(a, a - rr); s.quadraticCurveTo(a, a, a - rr, a); s.lineTo(-a + rr, a); s.quadraticCurveTo(-a, a, -a, a - rr); s.lineTo(-a, -a + rr); s.quadraticCurveTo(-a, -a, -a + rr, -a); }
       else s.absarc(0, 0, Ro, 0, Math.PI * 2, false);
       const h = new T.Path(); h.absarc(0, 0, Ri, 0, Math.PI * 2, true); s.holes.push(h);
       const g = new T.ExtrudeGeometry(s, { depth: d, bevelEnabled: true, bevelThickness: .04, bevelSize: .04, bevelSegments: 3, curveSegments: 64 }); g.translate(0, 0, -d / 2);
@@ -136,6 +136,7 @@
     const hand = Object.keys(models).filter(id => BME.equipment[id]);
     el.innerHTML = `<div class="page-head"><div class="eyebrow">3D · Real-time</div><h1>3D machine explorer</h1>
       <p>Rotate the machine, look inside with X-ray view, pull it apart with the exploded view and click any part for its function, failure modes, tests, PM and spares. Press <b>Run scan</b> to watch the workflow play out in 3D with sound.</p></div>
+      <h3>Manufacturer models — CT &amp; MRI</h3><div class="oem-grid" style="margin-bottom:22px">${Object.values(BME.oem || {}).map(o => `<a class="oem-card" href="#/3d/${o.equipment}?oem=${o.id}" style="--oc:${BME.oemMakers[o.maker].color}"><div class="oem-art">${Views._oemArt ? Views._oemArt(o) : ''}</div><div class="oem-body"><small>${esc(o.makerName)}</small><b>${esc(o.name)}</b><span>${esc(o.tagline)}</span></div></a>`).join('')}</div>
       <h3>Detailed 3D models</h3><div class="live-grid">${hand.map(id => card(id, true)).join('')}</div>
       <h3 style="margin-top:22px">Modular 3D (auto-generated from the parts list)</h3><div class="live-grid">${Object.keys(BME.equipment).filter(id => !models[id]).map(id => card(id, false)).join('')}</div>`;
     function card(id, full) { const e = BME.equipment[id]; return `<a class="live-card" href="#/3d/${id}">${full ? '<span class="live-pulse"></span>' : ''}<span class="lc-ic">⬢</span><b>${esc(e.name)}</b><small>${Object.keys(e.components || {}).length || (e.parts || []).length} clickable parts${full ? ' · scan animation + sound' : ''}</small></a>`; }
@@ -144,9 +145,13 @@
   V.x3d = function (el, id) {
     const eq = BME.ensure(BME.equipment[id]);
     if (!eq) { el.innerHTML = '<div class="empty"><h2>Equipment not found</h2></div>'; return; }
-    App.crumbs([['#/3d', '3D Explorer'], ['', eq.name]]);
+    const q = window._query || new URLSearchParams(), oem = BME.oem && BME.oem[q.get('oem')] && BME.oem[q.get('oem')].equipment === id ? BME.oem[q.get('oem')] : null;
+    const variants = Object.values(BME.oem || {}).filter(o => o.equipment === id);
+    App.crumbs([['#/3d', '3D Explorer'], ['', oem ? oem.makerName + ' ' + oem.name : eq.name]]);
     Store.touch(id);
-    el.innerHTML = `<div class="x3-head"><div><div class="eyebrow">⬢ 3D machine explorer${models[id] ? '' : ' · modular view'}</div><h1>${esc(eq.name)}</h1></div>
+    el.innerHTML = `<div class="x3-head"><div><div class="eyebrow">⬢ 3D machine explorer${models[id] ? '' : ' · modular view'}${oem ? ' · ' + esc(oem.makerName) : ''}</div><h1>${esc(oem ? oem.name : eq.name)}</h1>
+        ${oem ? `<p class="muted small" style="margin:0">${esc(oem.tagline)} · stylised training replica, not to scale · <a href="#/oem/${oem.id}">specs &amp; service parts →</a></p>` : ''}
+        ${variants.length ? `<select id="x3var" class="x3-var" aria-label="Model"><option value="">Generic ${esc(eq.name)}</option>${['ge', 'siemens', 'philips'].map(mk => `<optgroup label="${esc(BME.oemMakers[mk].name)}">${variants.filter(v => v.maker === mk).map(v => `<option value="${v.id}" ${oem && oem.id === v.id ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</optgroup>`).join('')}</select>` : ''}</div>
         <div class="row gap wrap"><a class="btn" href="#/eq/${id}/components">Components</a>${window.Sim && Sim.has(id) ? `<a class="btn" href="#/live/${id}">◉ Live simulator</a>` : ''}<a class="btn" href="#/eq/${id}/service">Service</a></div></div>
       <div class="x3">
         <div class="x3-view" id="x3v"><div class="x3-load" id="x3load"><div class="spin"></div>Loading 3D engine…</div>
@@ -164,13 +169,14 @@
     const info = $('#x3info', el);
     const comps = eq.components || {};
     const partList = filter => $('#x3parts', el).innerHTML = Object.entries(comps).filter(([k, c]) => !filter || c.name.toLowerCase().includes(filter)).map(([k, c]) => `<button data-p="${k}">${esc(c.name)}</button>`).join('');
+    const vs = $('#x3var', el); if (vs) vs.onchange = () => { location.hash = '#/3d/' + id + (vs.value ? '?oem=' + vs.value : ''); };
     partList(); $('#x3q', el).oninput = e => partList(e.target.value.toLowerCase());
 
-    loadThree().then(() => build(el, eq), e => { const l = $('#x3load', el); if (l) l.innerHTML = `<b>3D engine could not be loaded.</b><small>${esc(e.message)}. The 3D explorer needs an internet connection the first time (three.js from jsDelivr).</small>`; })
+    loadThree().then(() => build(el, eq, oem), e => { const l = $('#x3load', el); if (l) l.innerHTML = `<b>3D engine could not be loaded.</b><small>${esc(e.message)}. The 3D explorer needs an internet connection the first time (three.js from jsDelivr).</small>`; })
       .catch(e => { console.error(e); const v = $('#x3v', el); if (v) v.insertAdjacentHTML('beforeend', `<div class="x3-load"><b>3D view failed to start.</b><small>${esc(e.message)} — WebGL may be disabled in this browser.</small></div>`); });
   };
 
-  function build(el, eq) {
+  function build(el, eq, oem) {
     stop();
     const T = THREE, view = $('#x3v', el); if (!view) return;
     const info = $('#x3info', el), comps = eq.components || {};
@@ -196,6 +202,7 @@
     const grid = new T.GridHelper(24, 48, 0x2a4470, 0x1a2a46); grid.material.transparent = true; grid.material.opacity = .35; grid.position.y = .002; scene.add(grid);
 
     const K = makeKit(scene); K.eq = eq; K.Sound = window.Sim && Sim.Sound;
+    K.oem = oem || null; K.look = (oem && oem.look) || null;
     const def = models[eq.id] ? models[eq.id](K, eq) : autoModel(K, eq);
     const home = { cam: new T.Vector3(...(def.cam || [6, 4, 7])), target: new T.Vector3(...(def.target || [0, 1, 0])) };
     cam.position.copy(home.cam); ctl.target.copy(home.target);
@@ -230,6 +237,14 @@
       K.hazards.forEach(h => h.visible = mode === 'service');
       $('#x3sub', el).innerHTML = mode === 'service' && K.hazards.length ? `<div class="x3-legend">${[...new Set(K.hazards.map(h => h.userData.hz.type))].map(t => `<span class="haz haz-${t}">${UI.HAZ[t] || '⚠'} ${esc(K.hazards.find(h => h.userData.hz.type === t).userData.hz.label)}</span>`).join('')}<small>Zones are illustrative for training — use the site survey and manufacturer data for real boundaries.</small></div>` : '';
     }
+    /* Field-replaceable-unit detail (manufacturer-level) for CT/MRI parts. */
+    const frus = BME.oemFru && BME.oemFru[eq.id] ? (oem ? BME.oemParts(oem.id) : BME.oemFru[eq.id]) : [];
+    function fruHtml(id) {
+      const list = frus.filter(f => f.comp === id); if (!list.length) return '';
+      const li = a => `<ul>${a.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+      return `<div class="x3-fru"><div class="eyebrow">Service parts (FRU)${oem ? ' · ' + esc(oem.makerName + ' ' + oem.name) : ''}</div>${list.map(f => `<details open><summary><b>${esc(f.oemName || f.name)}</b> <span class="tag ${/Crit|High/.test(f.crit) ? 'tag-bad' : 'tag-warn'}">${esc(f.crit)}</span></summary>
+        <div class="x3-kv">${f.oemName ? `<small>Generic part</small><p>${esc(f.name)}</p>` : ''}<small>Symptoms of failure</small>${li(f.sym)}<small>Diagnosis</small>${li(f.diag)}<small>Replacement</small><p>${esc(f.replace)}</p><small>Part number</small><p class="muted">From the manufacturer's service parts portal — record it on the asset.</p></div></details>`).join('')}</div>`;
+    }
     function select(id, flyTo) {
       sel = id; c.isolate = false;
       $$('#x3parts button', el).forEach(b => b.classList.toggle('on', b.dataset.p === id));
@@ -245,6 +260,7 @@
         ${p.pm ? `<small>PM</small>${Array.isArray(p.pm) ? li(p.pm) : `<p>${esc(p.pm)}</p>`}` : ''}
         ${p.spares ? `<small>Spares</small>${Array.isArray(p.spares) ? li(p.spares) : `<p>${esc(p.spares)}</p>`}` : ''}
         ${p.safety ? `<small>Safety</small><p class="bad-t">${esc([].concat(p.safety).join(' · '))}</p>` : ''}</div>
+        ${fruHtml(id)}
         <div class="row gap wrap"><button class="btn small" id="x3iso">Isolate</button><button class="btn small" id="x3fly">Zoom to part</button><a class="btn small" href="#/eq/${eq.id}/components" id="x3full">Full detail →</a></div>`;
       $('#x3iso', el).onclick = () => { c.isolate = !c.isolate; };
       $('#x3fly', el).onclick = () => flyTo_(id);

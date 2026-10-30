@@ -56,9 +56,12 @@
   /* ===================== CT ===================== */
   X3D.model('ct', (K) => {
     const T = K.T, m = K.m, GY = 1.15, S = { w: 0, target: 0, table: 0, tableT: 0, expo: false, img: 0 };
+    const L = Object.assign({ cover: 0xdfe5ee, accent: 0x2f7de1, light: 0x4da3ff, bore: 70, round: .25, depth: .86 }, K.look || {});
+    const RI = .4 * L.bore / 70, DEP = L.depth, tint = (mat, c) => { mat.color.setHex(c); return mat; };
     K.add(K.rbox(1.7, .36, 1.05, .06, m.shell2(), [0, .18, 0]));
-    K.cover(K.ring(1.12, .4, .86, m.shell(), [0, GY, 0], null, true), { explode: [0, 0, -2] });
-    K.cover(K.ring(.47, .4, .9, m.accent(), [0, GY, .01]), { explode: [0, 0, -2] });
+    K.cover(K.ring(1.12, RI, DEP, tint(m.shell(), L.cover), [0, GY, 0], null, L.round), { explode: [0, 0, -2] });
+    K.cover(K.group(K.ring(RI + .1, RI, DEP + .04, tint(m.accent(), L.accent), [0, GY, .01]), K.torus(RI + .05, .012, m.glow(L.light), [0, GY, DEP / 2 + .03]),
+      K.ring(1.13, 1.08, DEP * .3, tint(m.accent(), L.accent), [0, GY, DEP * .36], null, L.round)), { explode: [0, 0, -2] });
     K.part('gantry', K.group(K.ring(1.04, .97, .74, m.steel(), [0, GY, 0], null, true), K.box(.3, .5, .6, m.steel(), [-.75, .55, 0]), K.box(.3, .5, .6, m.steel(), [.75, .55, 0])), { explode: [0, 0, 0] });
     K.part('slipRing', K.group(K.torus(.72, .03, m.copper(), [0, GY, -.36]), K.torus(.68, .03, m.copper(), [0, GY, -.36]), K.box(.1, .08, .08, m.dark(), [.0, GY + .72, -.42]), K.box(.1, .08, .08, m.dark(), [0, GY - .72, -.42])), { explode: [0, 0, -1.1] });
     const rotor = new T.Group(); rotor.position.set(0, GY, 0); K.add(rotor);
@@ -69,6 +72,13 @@
     const det = K.mesh(new T.CylinderGeometry(.8, .8, .26, 48, 1, true, -.62, 1.24), new T.MeshStandardMaterial({ color: 0x2a3644, metalness: .6, roughness: .35, side: T.DoubleSide }), [0, 0, 0], [PI / 2, 0, 0]);
     const detG = K.group(det); for (let i = -6; i <= 6; i++) { const a = i * .095; detG.add(K.box(.07, .02, .24, m.gold(), [Math.sin(a) * .79, -Math.cos(a) * .79, 0], [0, 0, a])); }
     K.part('detector', detG, { parent: rotor, explode: [0, -.7, 0] });
+    if (K.oem && K.oem.dual) { // second tube-detector pair at ~95 degrees
+      const sub = new T.Group(); sub.rotation.z = -1.66; rotor.add(sub);
+      K.part('tube', K.at(K.group(K.cyl(.14, .14, .42, m.metal(), [0, 0, 0], [PI / 2, 0, 0]), K.cyl(.15, .15, .05, m.dark(), [0, 0, .22], [PI / 2, 0, 0]), K.cyl(.15, .15, .05, m.dark(), [0, 0, -.22], [PI / 2, 0, 0])), [0, .74, 0]), { parent: sub, explode: [0, .7, 0] });
+      const d2 = K.mesh(new T.CylinderGeometry(.8, .8, .24, 32, 1, true, -.36, .72), new T.MeshStandardMaterial({ color: 0x2a3644, metalness: .6, roughness: .35, side: T.DoubleSide }), [0, 0, 0], [PI / 2, 0, 0]);
+      const d2g = K.group(d2); for (let i = -3; i <= 3; i++) { const a = i * .095; d2g.add(K.box(.07, .02, .22, m.gold(), [Math.sin(a) * .79, -Math.cos(a) * .79, 0], [0, 0, a])); }
+      K.part('detector', d2g, { parent: sub, explode: [0, -.7, 0] });
+    }
     K.part('das', K.group(...[-.3, 0, .3].map(x => K.box(.22, .1, .22, m.pcb(), [x, -.9 + Math.abs(x) * .15, 0]))), { parent: rotor, explode: [0, -1.1, .4] });
     K.part('generator', K.group(K.rbox(.22, .4, .32, .03, m.orange(), [-.72, 0, 0]), K.rbox(.22, .3, .32, .03, m.orange(), [.72, .05, 0])), { parent: rotor, explode: [0, 0, 1] });
     K.part('cooling', K.group(K.box(.26, .2, .1, m.steel(), [.48, .58, -.05], [0, 0, -.7]), K.cyl(.08, .08, .02, m.dark(), [.48, .58, .02], [PI / 2, 0, 0])), { parent: rotor, explode: [.5, .5, .5] });
@@ -117,7 +127,11 @@
   /* ===================== MRI ===================== */
   X3D.model('mri', (K) => {
     const T = K.T, m = K.m, GY = 1.15, S = { table: 0, tableT: 0, rf: 0, img: 0, knock: 0, chirp: 0 };
-    const housing = K.group(K.ring(1.05, .34, 1.7, m.shell(), [0, 0, 0]), K.ring(1.08, .34, .12, m.accent(), [0, 0, .86]), K.rbox(1.6, .5, 1.5, .06, m.shell2(), [0, -.85, 0]));
+    const L = Object.assign({ cover: 0xdfe5ee, accent: 0x2f7de1, light: 0x4da3ff, bore: 70, len: 1.7, flare: 1.08, field: '1.5 T' }, K.look || {});
+    const RI = .34 * L.bore / 70, tint = (mat, c) => { mat.color.setHex(c); return mat; };
+    const housing = K.group(K.ring(1.05, RI, L.len, tint(m.shell(), L.cover), [0, 0, 0]), K.ring(L.flare, RI, .12, tint(m.accent(), L.accent), [0, 0, L.len / 2 + .01]),
+      K.torus(RI + .03, .014, m.glow(L.light), [0, 0, L.len / 2 + .08]), K.torus(L.flare - .03, .012, m.glow(L.light), [0, 0, L.len / 2 + .08]),
+      K.rbox(1.6, .5, L.len * .88, .06, m.shell2(), [0, -.85, 0]));
     K.cover(K.at(housing, [0, GY, 0]), { explode: [0, 0, -2.8] });
     const cryoMat = m.metal(); cryoMat.transparent = true; cryoMat.opacity = .45;
     K.part('cryo', K.group(K.ring(.98, .92, 1.6, cryoMat, [0, GY, 0]), K.ring(.62, .6, 1.6, cryoMat.clone(), [0, GY, 0]),
@@ -143,7 +157,7 @@
     const pat = patient(K); pat.position.set(0, .2, -.15); cradle.add(pat);
     cradle.position.set(0, .82, 1.9); K.part('table', cradle, { explode: [0, .4, 1.6] });
     const imgScr = K.screen(.54, .32, (c, w, h, t) => grayImg(c, w, h, t, 'mr', S.img), null, null, 160);
-    const uiScr = K.screen(.54, .32, uiScreen('MR · Sequence', ['T2 FSE  TR 4000  TE 100', 'He level 72% (training)', 'Coldhead: running', 'SAR: normal mode']), null, null, 160);
+    const uiScr = K.screen(.54, .32, uiScreen('MR · Sequence · ' + L.field, ['T2 FSE  TR 4000  TE 100', 'He level 72% (training)', 'Coldhead: running', 'SAR: normal mode']), null, null, 160);
     K.part('console', K.at(desk(K, [uiScr, imgScr]), [3.6, 0, 1.2], [0, -PI / 2, 0]), { explode: [.8, 0, 0] });
     K.part('recon', K.at(rack(K, 1.6), [3.7, 0, -1], [0, -PI / 2, 0]), { explode: [.8, 0, -.4] });
     K.part('pacs', K.at(rack(K, 1.2), [3.7, 0, -1.9], [0, -PI / 2, 0]), { explode: [.8, 0, -.8] });
