@@ -137,6 +137,7 @@
     el.innerHTML = `<div class="page-head"><div class="eyebrow">3D · Real-time</div><h1>3D machine explorer</h1>
       <p>Rotate the machine, look inside with X-ray view, pull it apart with the exploded view and click any part for its function, failure modes, tests, PM and spares. Press <b>Run scan</b> to watch the workflow play out in 3D with sound.</p></div>
       <h3>Manufacturer models — CT &amp; MRI</h3><div class="oem-grid" style="margin-bottom:22px">${Object.values(BME.oem || {}).map(o => `<a class="oem-card" href="#/3d/${o.equipment}?oem=${o.id}" style="--oc:${BME.oemMakers[o.maker].color}"><div class="oem-art">${Views._oemArt ? Views._oemArt(o) : ''}</div><div class="oem-body"><small>${esc(o.makerName)}</small><b>${esc(o.name)}</b><span>${esc(o.tagline)}</span></div></a>`).join('')}</div>
+      ${BME.fleetLooks && BME.fleet ? `<h3>Hospital fleet — model-specific replicas</h3><div class="live-grid" style="margin-bottom:22px">${['carm', 'cathlab', 'ultrasound'].filter(e => BME.equipment[e] && models[e]).map(e => `<div class="live-card"><span class="lc-ic">⬢</span><b>${esc(BME.equipment[e].name)}</b><small>${BME.fleet.filter(f => f.eq === e && BME.fleetLooks[f.id]).map(f => `<a href="#/3d/${e}?v=${f.id}">${esc(f.maker.split(' ')[0] + ' ' + f.model)}</a>`).join(' · ')}</small></div>`).join('')}</div>` : ''}
       <h3>Detailed 3D models</h3><div class="live-grid">${hand.map(id => card(id, true)).join('')}</div>
       <h3 style="margin-top:22px">Modular 3D (auto-generated from the parts list)</h3><div class="live-grid">${Object.keys(BME.equipment).filter(id => !models[id]).map(id => card(id, false)).join('')}</div>`;
     function card(id, full) { const e = BME.equipment[id]; return `<a class="live-card" href="#/3d/${id}">${full ? '<span class="live-pulse"></span>' : ''}<span class="lc-ic">⬢</span><b>${esc(e.name)}</b><small>${Object.keys(e.components || {}).length || (e.parts || []).length} clickable parts${full ? ' · scan animation + sound' : ''}</small></a>`; }
@@ -147,11 +148,17 @@
     if (!eq) { el.innerHTML = '<div class="empty"><h2>Equipment not found</h2></div>'; return; }
     const q = window._query || new URLSearchParams(), oem = BME.oem && BME.oem[q.get('oem')] && BME.oem[q.get('oem')].equipment === id ? BME.oem[q.get('oem')] : null;
     const variants = Object.values(BME.oem || {}).filter(o => o.equipment === id);
-    App.crumbs([['#/3d', '3D Explorer'], ['', oem ? oem.makerName + ' ' + oem.name : eq.name]]);
+    /* Hospital-fleet variants (?v=<BME.fleet id>) — model-specific looks from BME.fleetLooks. */
+    const looks = BME.fleetLooks || {}, fv = q.get('v');
+    const fleet = !oem && fv && BME.fleet ? BME.fleet.find(f => f.id === fv && f.eq === id) || null : null, flook = fleet ? looks[fleet.id] || null : null;
+    const fvars = (BME.fleet || []).filter(f => f.eq === id && looks[f.id]), fmakers = [...new Set(fvars.map(f => f.maker))];
+    App.crumbs([['#/3d', '3D Explorer'], ['', oem ? oem.makerName + ' ' + oem.name : fleet ? fleet.maker + ' ' + fleet.model : eq.name]]);
     Store.touch(id);
-    el.innerHTML = `<div class="x3-head"><div><div class="eyebrow">⬢ 3D machine explorer${models[id] ? '' : ' · modular view'}${oem ? ' · ' + esc(oem.makerName) : ''}</div><h1>${esc(oem ? oem.name : eq.name)}</h1>
-        ${oem ? `<p class="muted small" style="margin:0">${esc(oem.tagline)} · stylised training replica, not to scale · <a href="#/oem/${oem.id}">specs &amp; service parts →</a></p>` : ''}
-        ${variants.length ? `<select id="x3var" class="x3-var" aria-label="Model"><option value="">Generic ${esc(eq.name)}</option>${['ge', 'siemens', 'philips'].map(mk => `<optgroup label="${esc(BME.oemMakers[mk].name)}">${variants.filter(v => v.maker === mk).map(v => `<option value="${v.id}" ${oem && oem.id === v.id ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</optgroup>`).join('')}</select>` : ''}</div>
+    el.innerHTML = `<div class="x3-head"><div><div class="eyebrow">⬢ 3D machine explorer${models[id] ? '' : ' · modular view'}${oem ? ' · ' + esc(oem.makerName) : fleet ? ' · ' + esc(fleet.maker) + ' · ' + esc(eq.name) : ''}</div><h1>${esc(oem ? oem.name : fleet ? fleet.model : eq.name)}</h1>
+        ${oem ? `<p class="muted small" style="margin:0">${esc(oem.tagline)} · replica built from published dimensions (no logos; verify against the real system) · <a href="#/oem/${oem.id}">specs &amp; service parts →</a></p>` : ''}
+        ${variants.length ? `<select id="x3var" class="x3-var" aria-label="Model"><option value="">Generic ${esc(eq.name)}</option>${['ge', 'siemens', 'philips'].map(mk => `<optgroup label="${esc(BME.oemMakers[mk].name)}">${variants.filter(v => v.maker === mk).map(v => `<option value="${v.id}" ${oem && oem.id === v.id ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</optgroup>`).join('')}</select>` : ''}
+        ${fleet ? `<p class="muted small" style="margin:0">${esc(flook ? flook.ref : fleet.note || '')}${fleet.count ? ' · ' + fleet.count + ' in the hospital fleet' : ''} · stylised training replica (published dimensions, no logos)</p>` : ''}
+        ${fvars.length && !oem ? `<select id="x3fleet" class="x3-var" aria-label="Fleet model"><option value="">Generic ${esc(eq.name)}</option>${fmakers.map(mk => `<optgroup label="${esc(mk)}">${fvars.filter(f => f.maker === mk).map(f => `<option value="${f.id}" ${fleet && fleet.id === f.id ? 'selected' : ''}>${esc(f.model)}</option>`).join('')}</optgroup>`).join('')}</select>` : ''}</div>
         <div class="row gap wrap"><a class="btn" href="#/eq/${id}/components">Components</a>${window.Sim && Sim.has(id) ? `<a class="btn" href="#/live/${id}">◉ Live simulator</a>` : ''}<a class="btn" href="#/eq/${id}/service">Service</a></div></div>
       <div class="x3">
         <div class="x3-view" id="x3v"><div class="x3-load" id="x3load"><div class="spin"></div>Loading 3D engine…</div>
@@ -170,13 +177,14 @@
     const comps = eq.components || {};
     const partList = filter => $('#x3parts', el).innerHTML = Object.entries(comps).filter(([k, c]) => !filter || c.name.toLowerCase().includes(filter)).map(([k, c]) => `<button data-p="${k}">${esc(c.name)}</button>`).join('');
     const vs = $('#x3var', el); if (vs) vs.onchange = () => { location.hash = '#/3d/' + id + (vs.value ? '?oem=' + vs.value : ''); };
+    const fsel = $('#x3fleet', el); if (fsel) fsel.onchange = () => { location.hash = '#/3d/' + id + (fsel.value ? '?v=' + fsel.value : ''); };
     partList(); $('#x3q', el).oninput = e => partList(e.target.value.toLowerCase());
 
-    loadThree().then(() => build(el, eq, oem), e => { const l = $('#x3load', el); if (l) l.innerHTML = `<b>3D engine could not be loaded.</b><small>${esc(e.message)}. The 3D explorer needs an internet connection the first time (three.js from jsDelivr).</small>`; })
+    loadThree().then(() => build(el, eq, oem, fleet), e => { const l = $('#x3load', el); if (l) l.innerHTML = `<b>3D engine could not be loaded.</b><small>${esc(e.message)}. The 3D explorer needs an internet connection the first time (three.js from jsDelivr).</small>`; })
       .catch(e => { console.error(e); const v = $('#x3v', el); if (v) v.insertAdjacentHTML('beforeend', `<div class="x3-load"><b>3D view failed to start.</b><small>${esc(e.message)} — WebGL may be disabled in this browser.</small></div>`); });
   };
 
-  function build(el, eq, oem) {
+  function build(el, eq, oem, fleet) {
     stop();
     const T = THREE, view = $('#x3v', el); if (!view) return;
     const info = $('#x3info', el), comps = eq.components || {};
@@ -203,6 +211,7 @@
 
     const K = makeKit(scene); K.eq = eq; K.Sound = window.Sim && Sim.Sound;
     K.oem = oem || null; K.look = (oem && oem.look) || null;
+    K.fleet = fleet || null; K.vlook = (fleet && BME.fleetLooks && BME.fleetLooks[fleet.id]) || null; // fleet variant (?v=)
     const def = models[eq.id] ? models[eq.id](K, eq) : autoModel(K, eq);
     const home = { cam: new T.Vector3(...(def.cam || [6, 4, 7])), target: new T.Vector3(...(def.target || [0, 1, 0])) };
     cam.position.copy(home.cam); ctl.target.copy(home.target);
@@ -215,6 +224,12 @@
 
     const resize = () => { const w = view.clientWidth, h = view.clientHeight; renderer.setSize(w, h); cam.aspect = w / h; cam.updateProjectionMatrix(); };
     c.ro = new ResizeObserver(resize); c.ro.observe(view); resize();
+    /* Portrait (phone) viewports: pull the home camera back so the whole machine fits.
+       CT/MRI builders already frame for phones themselves. */
+    if (!['ct', 'mri'].includes(eq.id) && cam.aspect < 1.3) {
+      const f = Math.min(1.9, Math.pow(1.3 / cam.aspect, .75));
+      home.cam.sub(home.target).multiplyScalar(f).add(home.target); cam.position.copy(home.cam);
+    }
 
     const meshesOf = id => { const out = []; (K.parts[id] || []).forEach(o => o.traverse(x => x.isMesh && out.push(x))); return out; };
     const allPartMeshes = () => Object.keys(K.parts).flatMap(meshesOf);
