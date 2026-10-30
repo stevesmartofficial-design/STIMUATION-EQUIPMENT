@@ -188,7 +188,12 @@
   V._wireDocs = (root, refresh) => $$('.doc-row', root).forEach(row => $$('[data-act]', row).forEach(b => b.onclick = async () => {
     const d = await Files.get('files', row.dataset.id); if (!d) return;
     const url = URL.createObjectURL(d.blob); const act = b.dataset.act;
-    if (act === 'view') { const page = row.dataset.page ? '#page=' + row.dataset.page : ''; d.mime === 'application/pdf' ? modal(`<h3>${esc(d.name)}</h3><iframe class="pdf-frame" src="${url}${page}"></iframe>`, { wide: true }) : window.open(url, '_blank'); }
+    if (act === 'view') {
+      const page = row.dataset.page;
+      if (d.mime === 'application/pdf' && V.reader) location.hash = '#/reader?doc=' + d.id + (page ? '&page=' + page : '');
+      else if (d.mime === 'application/pdf') modal(`<h3>${esc(d.name)}</h3><iframe class="pdf-frame" src="${url}${page ? '#page=' + page : ''}"></iframe>`, { wide: true });
+      else window.open(url, '_blank');
+    }
     if (act === 'dl') { const a = document.createElement('a'); a.href = url; a.download = d.name; a.click(); }
     if (act === 'bm') { Store.s.bookmarks[d.id] = !Store.s.bookmarks[d.id]; if (!Store.s.bookmarks[d.id]) delete Store.s.bookmarks[d.id]; Store.save(); refresh(); }
     if (act === 'del' && confirm('Delete ' + d.name + '?')) { await Files.del('files', d.id); refresh(); }

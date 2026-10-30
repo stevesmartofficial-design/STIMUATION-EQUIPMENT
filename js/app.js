@@ -9,7 +9,7 @@
     ['Service', [['#/service', '⚒', 'Service Engineer Mode'], ['#/simlab', '⚠', 'Fault Simulation Lab'], ['#/cases', '☎', 'Service Cases'], ['#/errors', '⌕', 'Error Code Explorer']]],
     ['Maintenance & QA', [['#/pm', '✓', 'Preventive Maintenance'], ['#/qa', '◎', 'QA & Performance'], ['#/safety', '⚡', 'Electrical & Safety']]],
     ['Fundamentals', [['#/tools', '⚖', 'Service Tools Lab'], ['#/dicom', '⇄', 'DICOM / Network'], ['#/image-quality', '◐', 'Image Quality'], ['#/manufacturers', '⌂', 'Manufacturers']]],
-    ['Records', [['#/assets', '⌗', 'Equipment & QR'], ['#/reports', '✎', 'Service Reports'], ['#/manuals', '▥', 'Service Manuals'], ['#/documents', '❐', 'Reference Library']]],
+    ['Records', [['#/fleet', '▣', 'My Equipment'], ['#/assets', '⌗', 'Equipment & QR'], ['#/reports', '✎', 'Service Reports'], ['#/manuals', '▥', 'Service Manuals'], ['#/documents', '❐', 'Reference Library']]],
     ['You', [['#/assessment', '★', 'Assessment'], ['#/progress', '▲', 'My Progress'], ['#/admin', '⚙', 'Admin']]]
   ];
 
@@ -35,7 +35,7 @@
     [/^#\/dicom$/, 'dicom'], [/^#\/image-quality$/, 'imageQuality'], [/^#\/manufacturers(?:\/([\w-]+))?$/, 'manufacturers'],
     [/^#\/assets$/, 'assets'], [/^#\/asset\/([\w-]+)$/, 'asset'], [/^#\/reports$/, 'reports'], [/^#\/report\/([\w-]+)$/, 'report'],
     [/^#\/documents$/, 'documents'], [/^#\/assessment(?:\/([\w-]+))?$/, 'assessment'], [/^#\/progress$/, 'progress'], [/^#\/admin$/, 'admin'],
-    [/^#\/live$/, 'liveHub'], [/^#\/live\/([\w-]+)$/, 'live'], [/^#\/3d$/, 'x3dHub'], [/^#\/3d\/([\w-]+)$/, 'x3d'], [/^#\/dicom-viewer$/, 'dicomViewer'], [/^#\/oem$/, 'oemHub'], [/^#\/oem\/([\w-]+)$/, 'oem'], [/^#\/manuals$/, 'manuals']
+    [/^#\/live$/, 'liveHub'], [/^#\/live\/([\w-]+)$/, 'live'], [/^#\/3d$/, 'x3dHub'], [/^#\/3d\/([\w-]+)$/, 'x3d'], [/^#\/dicom-viewer$/, 'dicomViewer'], [/^#\/oem$/, 'oemHub'], [/^#\/oem\/([\w-]+)$/, 'oem'], [/^#\/manuals$/, 'manuals'], [/^#\/fleet$/, 'fleetHub'], [/^#\/fleet\/([\w-]+)$/, 'fleet'], [/^#\/reader$/, 'reader']
   ];
 
   function route() {
@@ -44,7 +44,7 @@
     let view = null, params = [];
     for (const [re, name] of ROUTES) { const m = h.match(re); if (m) { view = name; params = m.slice(1); break; } }
     renderNav();
-    window.Sim && Sim.stop(); window.X3D && X3D.stop();
+    window.Sim && Sim.stop(); window.X3D && X3D.stop(); Views._readerStop && Views._readerStop();
     const el = $('#view');
     el.classList.remove('enter'); void el.offsetWidth; el.classList.add('enter');
     if (!view || !Views[view]) { crumbs([['', 'Not found']]); el.innerHTML = '<div class="empty"><h2>Page not found</h2><a class="btn" href="#/">Back to dashboard</a></div>'; return; }
