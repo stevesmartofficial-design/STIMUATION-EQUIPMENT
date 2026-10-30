@@ -88,6 +88,7 @@
       <a class="live-card" href="#/3d"><span class="lc-ic">⬢</span><b>3D machine explorer</b><small>Rotate, X-ray and explode the machine in 3D. Click any part for service detail, then watch a scan.</small></a>
       <a class="live-card" href="#/oem"><span class="lc-ic">◆</span><b>GE · Siemens · Philips CT &amp; MRI</b><small>Real model families: published specs, 3D replica, and a service-parts catalogue for every major unit.</small></a>
       <a class="live-card" href="#/dicom-viewer"><span class="lc-ic">▣</span><b>DICOM viewer</b><small>Open .dcm studies: window/level, MPR, measurements, ROI and the tag browser, all in your browser.</small></a>
+      <a class="live-card" href="#/manuals"><span class="lc-ic">▥</span><b>Service manual library</b><small>Search 5,000+ free service and user manuals by manufacturer and model: Dräger, Philips, GE, Siemens, Zoll and more.</small></a>
     </div>
 
     <h2 class="section-h">Training sections</h2>

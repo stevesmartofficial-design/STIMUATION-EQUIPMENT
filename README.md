@@ -76,6 +76,12 @@ The app loads three libraries from public CDNs: QR generation, QR scanning, and 
 
   The platform contains **no logos, no invented part numbers and no official procedures**. Those come only from the manufacturer's service documentation. Product names are trademarks of their owners, and the platform is not affiliated with them.
 
+- **Service Manual Library** (`#/manuals`). A searchable index of the free service and user manual collection at [Frank's Hospital Workshop](http://www.frankshospitalworkshop.com/equipment.html): over 5,300 documents from about 270 manufacturers, across 39 equipment groups.
+  - Filter by training equipment, source group, manufacturer, language and service/user type. You can save manuals.
+  - Each equipment's **Documents** tab lists the matching public manuals.
+  - The index (`data/manuals.json`) holds only titles and links. Documents open on the source site and are never re-hosted.
+  - Entries the source marks "download prohibited" by the manufacturer are excluded.
+
 Requirements: WebGL for 3D, and a modern Chrome or Edge. Sound starts only after you press Power on or Run scan, because browsers block autoplay.
 
 ## 4. Extending it (no core code changes)
@@ -111,7 +117,8 @@ js/ui.js              diagram renderer, quiz engine, modal, signature pad
 js/views/*.js         dashboard, equipment explorer, labs, records, assistant, live, DICOM viewer
 js/sim/*.js           real-time simulation engine (Web Audio synth, strip charts, alarms) + simulators
 js/three/*.js         3D explorer framework + procedural machine models
-css/sim.css, three.css, dicom-viewer.css
+css/sim.css, three.css, dicom-viewer.css, oem.css, manuals.css
+data/manuals.json     service-manual index (titles + links to Frank's Hospital Workshop)
 js/app.js             router, search, theme, full-screen, QR scanner
 db/schema.sql         production database schema
 ```

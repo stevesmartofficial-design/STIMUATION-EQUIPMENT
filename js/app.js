@@ -9,7 +9,7 @@
     ['Service', [['#/service', '⚒', 'Service Engineer Mode'], ['#/simlab', '⚠', 'Fault Simulation Lab'], ['#/cases', '☎', 'Service Cases'], ['#/errors', '⌕', 'Error Code Explorer']]],
     ['Maintenance & QA', [['#/pm', '✓', 'Preventive Maintenance'], ['#/qa', '◎', 'QA & Performance'], ['#/safety', '⚡', 'Electrical & Safety']]],
     ['Fundamentals', [['#/tools', '⚖', 'Service Tools Lab'], ['#/dicom', '⇄', 'DICOM / Network'], ['#/image-quality', '◐', 'Image Quality'], ['#/manufacturers', '⌂', 'Manufacturers']]],
-    ['Records', [['#/assets', '⌗', 'Equipment & QR'], ['#/reports', '✎', 'Service Reports'], ['#/documents', '❐', 'Reference Library']]],
+    ['Records', [['#/assets', '⌗', 'Equipment & QR'], ['#/reports', '✎', 'Service Reports'], ['#/manuals', '▥', 'Service Manuals'], ['#/documents', '❐', 'Reference Library']]],
     ['You', [['#/assessment', '★', 'Assessment'], ['#/progress', '▲', 'My Progress'], ['#/admin', '⚙', 'Admin']]]
   ];
 
@@ -35,7 +35,7 @@
     [/^#\/dicom$/, 'dicom'], [/^#\/image-quality$/, 'imageQuality'], [/^#\/manufacturers(?:\/([\w-]+))?$/, 'manufacturers'],
     [/^#\/assets$/, 'assets'], [/^#\/asset\/([\w-]+)$/, 'asset'], [/^#\/reports$/, 'reports'], [/^#\/report\/([\w-]+)$/, 'report'],
     [/^#\/documents$/, 'documents'], [/^#\/assessment(?:\/([\w-]+))?$/, 'assessment'], [/^#\/progress$/, 'progress'], [/^#\/admin$/, 'admin'],
-    [/^#\/live$/, 'liveHub'], [/^#\/live\/([\w-]+)$/, 'live'], [/^#\/3d$/, 'x3dHub'], [/^#\/3d\/([\w-]+)$/, 'x3d'], [/^#\/dicom-viewer$/, 'dicomViewer'], [/^#\/oem$/, 'oemHub'], [/^#\/oem\/([\w-]+)$/, 'oem']
+    [/^#\/live$/, 'liveHub'], [/^#\/live\/([\w-]+)$/, 'live'], [/^#\/3d$/, 'x3dHub'], [/^#\/3d\/([\w-]+)$/, 'x3d'], [/^#\/dicom-viewer$/, 'dicomViewer'], [/^#\/oem$/, 'oemHub'], [/^#\/oem\/([\w-]+)$/, 'oem'], [/^#\/manuals$/, 'manuals']
   ];
 
   function route() {

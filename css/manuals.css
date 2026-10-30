@@ -1,0 +1,39 @@
+/* Service manual library (js/views/manuals.js) */
+.man-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+.man-stats div { padding: 14px 16px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; }
+.man-stats b { font-size: 1.5rem; color: var(--accent); }
+.man-stats small { color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-size: .7rem; }
+.man-filters { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.man-filters input[type=search] { width: 100%; font-size: 1rem; }
+.man-selects { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.man-selects select { width: 100%; min-width: 0; }
+.man-count { margin: 4px 0 10px; gap: 8px; }
+.man-list { display: flex; flex-direction: column; gap: 10px; }
+.man-model { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); overflow: hidden; }
+.man-head { padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; background: var(--panel2); border-bottom: 1px solid var(--line); }
+.man-head small { color: var(--muted); }
+.man-doc { display: grid; grid-template-columns: auto 1fr auto auto; gap: 10px; align-items: center; padding: 8px 14px; border-top: 1px dashed var(--line); }
+.man-doc:first-of-type { border-top: 0; }
+.man-kind { font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: 3px 7px; border-radius: 6px; border: 1px solid var(--line); }
+.man-kind.s { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.man-kind.u { color: var(--muted); }
+.man-title { min-width: 0; overflow-wrap: anywhere; }
+.man-meta { color: var(--muted); font-size: .8rem; white-space: nowrap; }
+.man-act { display: flex; gap: 6px; align-items: center; }
+.man-star { color: var(--muted); }
+.man-star.on { color: var(--warn); }
+.man-src { margin-top: 18px; max-width: 900px; }
+#mres .row.center { margin-top: 14px; }
+.eq-public { margin-top: 18px; }
+.eq-public .man-doc { padding-left: 0; padding-right: 0; }
+@media (max-width: 860px) {
+  .man-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .man-selects { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .man-stats { gap: 8px; } .man-stats div { padding: 10px 12px; } .man-stats b { font-size: 1.2rem; }
+  .man-selects select { font-size: .85rem; padding-left: 8px; padding-right: 4px; }
+  .man-doc { grid-template-columns: auto 1fr; }
+  .man-meta { grid-column: 1 / -1; white-space: normal; }
+  .man-act { grid-column: 1 / -1; justify-content: flex-end; }
+}

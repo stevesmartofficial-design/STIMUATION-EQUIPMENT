@@ -308,7 +308,20 @@
       b.innerHTML = `<div class="row between wrap"><p class="muted">${docs.length} document(s) linked to ${esc(eq.name)}.</p><a class="btn btn-primary" href="#/documents">Upload / manage documents</a></div>
         ${docs.map(d => V._docRow(d)).join('') || '<div class="empty small">No documents linked yet. Upload service manuals, SOPs, PM checklists and certificates in the Reference Library.</div>'}`;
       V._wireDocs && V._wireDocs(b, () => TABS.documents(b, eq));
-    }).catch(() => { b.innerHTML = '<p class="muted">Document storage unavailable in this browser.</p>'; });
+      publicManuals(b, eq);
+    }).catch(() => { b.innerHTML = '<p class="muted">Document storage unavailable in this browser.</p>'; publicManuals(b, eq); });
+  };
+  /* Public service manuals for this equipment type, from the Service Manual Library index. */
+  const publicManuals = (b, eq) => {
+    if (!V._manualsFor) return;
+    V._manualsFor(eq.id).then(list => {
+      if (!list.length || !b.isConnected) return;
+      const svc = list.filter(x => !x.kind), top = svc.slice(0, 8);
+      b.insertAdjacentHTML('beforeend', `<div class="panel eq-public"><div class="row between wrap gap"><h3>Public service manuals</h3>
+        <a class="btn btn-primary" href="#/manuals?eq=${eq.id}">Browse all ${list.length.toLocaleString()} ›</a></div>
+        <p class="muted small">${svc.length.toLocaleString()} service and ${(list.length - svc.length).toLocaleString()} user documents for ${esc(eq.name)} models in the free collection at Frank's Hospital Workshop. Find the one for your exact model, download it, then upload it above to search inside it.</p>
+        ${top.map(x => `<div class="man-doc"><span class="man-kind s">Service</span><span class="man-title"><b>${esc(x.model)}</b> · ${esc(x.doc)}</span><span class="man-meta">${esc(x.size)}</span><a class="btn small" href="#/manuals?eq=${eq.id}&q=${encodeURIComponent(x.model)}">View</a></div>`).join('')}</div>`);
+    }).catch(() => {});
   };
 
   /* ---------- CASES ---------- */
