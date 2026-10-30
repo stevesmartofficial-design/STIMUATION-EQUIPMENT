@@ -31,17 +31,33 @@
       <div class="oem-specs">${o.specs.slice(0, 3).map(([k, v]) => `<div><i>${esc(k)}</i>${esc(v)}</div>`).join('')}</div></div></a>`;
   }
 
-  /* Small SVG silhouette in the model's styling (no logos). */
+  /* Small SVG front-view silhouette, drawn to the published proportions in the look params (1 m = 34 px, no logos). */
   function art(o) {
-    const L = o.look, hex = n => '#' + n.toString(16).padStart(6, '0'), r = o.equipment === 'ct' ? 26 * L.bore / 70 : 20 * L.bore / 70;
-    if (o.equipment === 'ct') return `<svg viewBox="0 0 160 100" aria-hidden="true"><rect x="40" y="86" width="80" height="8" rx="3" fill="#9aa7b8"/>
-      <rect x="38" y="8" width="84" height="80" rx="${84 * L.round * .5}" fill="${hex(L.cover)}" stroke="#c3cddb"/><circle cx="80" cy="48" r="${r + 6}" fill="${hex(L.accent)}"/>
-      <circle cx="80" cy="48" r="${r + 2.5}" fill="none" stroke="${hex(L.light)}" stroke-width="1.6"/><circle cx="80" cy="48" r="${r}" fill="#0b1322"/>
-      <rect x="4" y="58" width="90" height="6" rx="3" fill="#e8edf3"/><rect x="20" y="64" width="22" height="26" rx="3" fill="#d5dde8"/></svg>`;
-    return `<svg viewBox="0 0 160 100" aria-hidden="true"><rect x="22" y="80" width="116" height="12" rx="4" fill="#9aa7b8"/>
-      <rect x="${80 - 50 * L.len / 1.7}" y="10" width="${100 * L.len / 1.7}" height="74" rx="30" fill="${hex(L.cover)}" stroke="#c3cddb"/>
-      <ellipse cx="80" cy="47" rx="${34 * L.flare / 1.08}" ry="${38 * L.flare / 1.08}" fill="${hex(L.accent)}"/><ellipse cx="80" cy="47" rx="${r + 3}" ry="${r + 4}" fill="none" stroke="${hex(L.light)}" stroke-width="1.6"/>
-      <ellipse cx="80" cy="47" rx="${r}" ry="${r + 1}" fill="#0b1322"/><rect x="0" y="56" width="74" height="6" rx="3" fill="#e8edf3"/><text x="150" y="20" text-anchor="end" font-size="10" font-weight="700" fill="${hex(L.accent)}">${esc(L.field || '')}</text></svg>`;
+    const L = o.look || {}, hex = n => '#' + (n == null ? 0xdfe4ea : n).toString(16).padStart(6, '0'), s = 34, F = 95, f = n => +n.toFixed(1);
+    const RB = (L.bore || 70) / 200, line = '#b9c3cf';
+    if (o.equipment === 'ct') {
+      const W = L.W || 2.2, H = L.H || 1.95, ISO = L.iso || Math.min(1.05, H * .54), cy = F - ISO * s, x0 = 80 - W * s / 2, x1 = 80 + W * s / 2, y0 = F - H * s;
+      let g;
+      if (L.style === 'disc') {
+        const Rd = (H - ISO) * s, top = F - (H - (L.bodyDrop != null ? L.bodyDrop : .12)) * s;
+        g = `<rect x="${f(x0)}" y="${f(top)}" width="${f(W * s)}" height="${f(F - top)}" rx="2" fill="${hex(L.side)}" stroke="${line}"/><circle cx="80" cy="${f(cy)}" r="${f(Rd)}" fill="${hex(L.face || L.cover)}" stroke="${line}"/>`;
+      } else {
+        const rt = Math.min((L.rTop || .4) * s, W * s / 2 - 1), rb = (L.rBot || .08) * s;
+        g = `<path d="M${f(x0 + rb)} ${F}H${f(x1 - rb)}Q${f(x1)} ${F} ${f(x1)} ${f(F - rb)}V${f(y0 + rt)}Q${f(x1)} ${f(y0)} ${f(x1 - rt)} ${f(y0)}H${f(x0 + rt)}Q${f(x0)} ${f(y0)} ${f(x0)} ${f(y0 + rt)}V${f(F - rb)}Q${f(x0)} ${F} ${f(x0 + rb)} ${F}Z" fill="${hex(L.cover)}" stroke="${line}"/>`
+          + (L.sideBand ? `<rect x="${f(x0)}" y="${f(y0 + 8)}" width="3" height="${f(F - y0 - 12)}" fill="${hex(L.sideBand)}"/><rect x="${f(x1 - 3)}" y="${f(y0 + 8)}" width="3" height="${f(F - y0 - 12)}" fill="${hex(L.sideBand)}"/>` : '');
+      }
+      const rf = (RB + (L.bez || .17)) * s;
+      return `<svg viewBox="0 0 160 100" aria-hidden="true">${g}<circle cx="80" cy="${f(cy)}" r="${f(rf)}" fill="${hex(L.bezel || L.face || L.cover)}" stroke="${line}"/>
+        ${L.ring ? `<circle cx="80" cy="${f(cy)}" r="${f(rf - 1)}" fill="none" stroke="${hex(L.ring)}" stroke-width="1.4"/>` : ''}<circle cx="80" cy="${f(cy)}" r="${f(RB * s)}" fill="#0b1322"/>
+        <rect x="72" y="${f(cy + RB * s * .55)}" width="16" height="${f(F - cy - RB * s * .55)}" rx="2" fill="#e8edf3" stroke="${line}"/></svg>`;
+    }
+    const W = L.W || 2.15, H = L.H || 2.3, Ro = Math.min(W / 2 - .04, (H - .1) / 2), ISO = L.iso || Ro + .03, cy = F - ISO * s, R = Ro * s, Rf = (L.flare || 1) / 2 * s;
+    const tur = L.turret === false ? '' : `<rect x="69" y="${f(F - H * s)}" width="22" height="${f((H - ISO - Ro) * s + 6)}" rx="3" fill="${hex(L.cover)}" stroke="${line}"/>`;
+    return `<svg viewBox="0 0 160 100" aria-hidden="true">${tur}<rect x="${f(80 - W * s * .33)}" y="${f(cy)}" width="${f(W * s * .66)}" height="${f(F - cy)}" rx="3" fill="${hex(L.side || L.cover)}" stroke="${line}"/>
+      <circle cx="80" cy="${f(cy)}" r="${f(R)}" fill="${hex(L.face || L.cover)}" stroke="${L.rim ? hex(L.rim) : line}" stroke-width="${L.rim ? 3 : 1}"/>
+      <circle cx="80" cy="${f(cy)}" r="${f(Rf)}" fill="${hex(L.bezel)}" stroke="${line}"/>${L.ring ? `<circle cx="80" cy="${f(cy)}" r="${f(Rf - 1.2)}" fill="none" stroke="${hex(L.ring)}" stroke-width="1.4"/>` : ''}
+      <circle cx="80" cy="${f(cy)}" r="${f(RB * s)}" fill="#0b1322"/><rect x="71" y="${f(cy + RB * s * .5)}" width="18" height="${f(F - cy - RB * s * .5)}" rx="2" fill="#e8edf3" stroke="${line}"/>
+      <text x="156" y="14" text-anchor="end" font-size="10" font-weight="700" fill="#5b6575">${esc(L.field || '')}</text></svg>`;
   }
 
   V.oem = function (el, id) {
