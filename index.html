@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BioMed Service Academy</title>
+<meta name="description" content="Interactive biomedical engineering and medical equipment service training platform.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/sim.css">
+<link rel="stylesheet" href="css/three.css">
+<link rel="stylesheet" href="css/dicom-viewer.css">
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="#/">
+      <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 17h6l2-6 4 12 3-9 2 3h5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span><b>BioMed</b> Service Academy</span>
+    </a>
+    <nav class="nav" id="nav"></nav>
+    <div class="sidebar-foot">
+      <div class="level-chip" id="levelChip"></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn only-mobile" id="menuBtn" aria-label="Menu">☰</button>
+      <nav class="crumbs" id="crumbs" aria-label="Breadcrumb"></nav>
+      <div class="search-wrap">
+        <input id="globalSearch" type="search" placeholder="Search equipment, components, error codes, cases…" autocomplete="off">
+        <div class="search-results" id="searchResults"></div>
+      </div>
+      <button class="icon-btn" id="scanBtn" title="Scan equipment QR">⌗</button>
+      <button class="icon-btn" id="fsBtn" title="Full-screen training mode">⛶</button>
+      <button class="icon-btn" id="themeBtn" title="Toggle dark / light">◐</button>
+      <button class="btn btn-primary ai-btn" id="aiBtn" title="AI Training Assistant">✦ Assistant</button>
+    </header>
+    <main id="view" class="view" tabindex="-1"></main>
+  </div>
+
+  <aside class="ai-drawer" id="aiDrawer" aria-hidden="true">
+    <div class="ai-head">
+      <div><b>✦ Training Assistant</b><small>Answers from this platform's knowledge base</small></div>
+      <button class="icon-btn" id="aiClose">✕</button>
+    </div>
+    <div class="ai-log" id="aiLog"></div>
+    <div class="ai-suggest" id="aiSuggest"></div>
+    <form class="ai-form" id="aiForm"><input id="aiInput" placeholder="Ask: what should I check first?" autocomplete="off"><button class="btn btn-primary">Ask</button></form>
+  </aside>
+</div>
+
+<div class="modal" id="modal" aria-hidden="true"><div class="modal-card" id="modalCard"></div></div>
+<div class="toast" id="toast"></div>
+
+<!-- Third-party (CDN): QR generation, QR scanning, PDF text search -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<!-- Core + content packs. Add new equipment by dropping a file in js/content/ and listing it here. -->
+<script src="js/core.js"></script>
+<script src="js/data/catalog.js"></script>
+<script src="js/data/library.js"></script>
+<script src="js/content/ventilator.js"></script>
+<script src="js/content/ct.js"></script>
+<script src="js/content/mri.js"></script>
+<script src="js/content/ultrasound.js"></script>
+<script src="js/content/xray.js"></script>
+<script src="js/content/patient-monitor.js"></script>
+<script src="js/content/defibrillator.js"></script>
+<script src="js/content/infusion-pump.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/views/dashboard.js"></script>
+<script src="js/views/equipment.js"></script>
+<script src="js/views/labs.js"></script>
+<script src="js/views/records.js"></script>
+<script src="js/views/assistant.js"></script>
+<!-- Real-time: live simulators with synthesised sound + 3D explorer (three.js loads on demand) -->
+<script src="js/sim/engine.js"></script>
+<script src="js/sim/monitor.js"></script>
+<script src="js/sim/ventilator.js"></script>
+<script src="js/sim/defibrillator.js"></script>
+<script src="js/sim/infusion-pump.js"></script>
+<script src="js/sim/ct.js"></script>
+<script src="js/sim/mri.js"></script>
+<script src="js/sim/xray.js"></script>
+<script src="js/sim/ultrasound.js"></script>
+<script src="js/three/explorer.js"></script>
+<script src="js/three/models-imaging.js"></script>
+<script src="js/three/models-icu.js"></script>
+<script src="js/views/live.js"></script>
+<script src="js/views/dicom-viewer.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
