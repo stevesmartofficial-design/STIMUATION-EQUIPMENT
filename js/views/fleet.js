@@ -44,7 +44,7 @@
     const withDocs = F.filter(f => docsOf(f.id).length).length;
     el.innerHTML = `<div class="page-head"><div class="eyebrow">Installed base</div><h1>My equipment</h1>
       <p>Every model in the hospital's imaging and cath-lab fleet. Open a model to read its manuals in the built-in reader (works on phones), keep the hospital's own manual copies with it, and explore its 3D replica.</p></div>
-      <div class="man-stats"><div><b>${F.length}</b><small>models</small></div><div><b>${units}</b><small>units</small></div><div><b>${makers.length}</b><small>manufacturers</small></div><div><b>${withDocs}</b><small>with online manuals</small></div></div>
+      <div class="man-stats"><div><b>${F.length}</b><small>models</small></div><div><b>${units}</b><small>units</small></div><div><b>${makers.length}</b><small>manufacturers</small></div><div><b>${withDocs}</b><small>with online documents</small></div></div>
       <div class="panel fl-filters"><input id="fq" type="search" placeholder="Search model or manufacturer… e.g. Ziehm, LOGIQ, Azurion" autocomplete="off">
         <select id="fmk"><option value="">All manufacturers</option>${makers.map(m => `<option>${esc(m)}</option>`).join('')}</select>
         <div class="chips"><button class="chip ${st.mod ? '' : 'on'}" data-mod="">All</button>${Object.entries(mods).filter(([k]) => F.some(f => f.mod === k)).map(([k, n]) => `<button class="chip ${st.mod === k ? 'on' : ''}" data-mod="${k}">${esc(n)}</button>`).join('')}</div></div>
@@ -61,7 +61,7 @@
       const n = docsOf(f.id).length;
       return `<a class="fl-card" href="#/fleet/${f.id}"><div class="fl-top"><span class="fl-ic">${ICON[f.mod] || '◆'}</span><span class="fl-count" title="Units installed">×${f.count}</span></div>
         <small>${esc(f.maker)}</small><b>${esc(f.model)}</b>
-        <div class="fl-tags">${n ? `<span class="tag tag-ok">${n} manual${n > 1 ? 's' : ''}</span>` : ''}${f.eq ? '<span class="tag">3D</span>' : ''}${f.oem ? '<span class="tag tag-warn">specs + FRU</span>' : ''}</div></a>`;
+        <div class="fl-tags">${n ? `<span class="tag tag-ok">${n} doc${n > 1 ? 's' : ''}</span>` : ''}${f.eq ? '<span class="tag">3D</span>' : ''}${f.oem ? '<span class="tag tag-warn">specs + FRU</span>' : ''}</div></a>`;
     };
     let t; $('#fq', el).oninput = e => { clearTimeout(t); t = setTimeout(() => { st.q = e.target.value; draw(); }, 120); };
     $('#fmk', el).onchange = e => { st.mk = e.target.value; draw(); };
@@ -81,7 +81,7 @@
           ${eq ? `<a class="btn" href="#/eq/${eq.id}">${esc(eq.name)} training</a>` : ''}${eq && window.Sim && Sim.has(eq.id) ? `<a class="btn" href="#/live/${eq.id}">◉ Live simulator</a>` : ''}</div></div>
         <span class="fl-hero-ic">${ICON[f.mod] || '◆'}</span></section>
 
-      <div class="panel"><div class="row between wrap gap"><h3>Manuals online</h3>${portal ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(portal.url)}">${esc(portal.name)} ↗</a>` : ''}</div>
+      <div class="panel"><div class="row between wrap gap"><h3>Manufacturer documents online</h3>${portal ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(portal.url)}">${esc(portal.name)} ↗</a>` : ''}</div>
         ${docs.length ? `<div class="fl-docs">${docs.map(d => `<div class="man-doc"><span class="man-kind s">${esc(d.type)}</span><span class="man-title">${esc(d.title)}</span>
           <span class="man-meta">${esc((d.lang || '').toUpperCase())}${d.pages ? ' · ' + d.pages + ' pages' : ''}</span>
           <span class="man-act">${d.cors ? `<a class="btn small btn-primary" href="${readerHref(d)}">Read in app</a>` : ''}<a class="btn small" target="_blank" rel="noopener" href="${esc(d.url)}">${d.cors ? 'Original ↗' : 'Open ↗'}</a></span></div>`).join('')}</div>`

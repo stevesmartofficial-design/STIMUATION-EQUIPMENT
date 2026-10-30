@@ -30,3 +30,6 @@
   .fl-hero-ic { display: none; }
 }
 @media (max-width: 380px) { .fl-grid { grid-template-columns: 1fr; } }
+.panel .row.between > .btn { white-space: normal; max-width: 100%; text-align: left; }
+.fl-docs .man-kind { white-space: normal; max-width: 9.5rem; text-align: center; line-height: 1.2; }
+@media (max-width: 560px) { .fl-docs .man-doc { grid-template-columns: 1fr; } .fl-docs .man-kind { justify-self: start; } }

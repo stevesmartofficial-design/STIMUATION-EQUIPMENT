@@ -82,6 +82,18 @@ The app loads three libraries from public CDNs: QR generation, QR scanning, and 
   - The index (`data/manuals.json`) holds only titles and links. Documents open on the source site and are never re-hosted.
   - Entries the source marks "download prohibited" by the manufacturer are excluded.
 
+- **PDF reader** (`#/reader`). Built on PDF.js and works like Acrobat, on desktop and phone.
+  - Navigation: thumbnails, outline, bookmarks, search with highlights, and a remembered page.
+  - View: zoom/fit, rotate, night mode and full screen; on phones, pinch and double-tap zoom.
+  - Opens password-protected PDFs.
+  - Sources: the Reference Library (`?doc=`), a file on the device, or an online PDF (`?url=`) whose host allows cross-origin loading, such as Philips IFUs, Siemens, Hologic, Abbott and Boston Scientific documents.
+- **My Equipment** (`#/fleet`). The hospital's 93 imaging and cath-lab models (171 units). Serial numbers are not stored on this public site. Each model has:
+  - verified manufacturer- or FDA-hosted documents (`js/data/fleet-docs.js`), with "Read in app" where the host allows it;
+  - the hospital's own uploaded manuals;
+  - matches in the public manual collection;
+  - the maker's document portal;
+  - a model-specific 3D replica (`?oem=` for CT/MRI, `?v=` for C-arm, angio and ultrasound; dimensions and design cues are in `js/data/oem.js` and `js/data/fleet-looks.js`).
+
 Requirements: WebGL for 3D, and a modern Chrome or Edge. Sound starts only after you press Power on or Run scan, because browsers block autoplay.
 
 ## 4. Extending it (no core code changes)
