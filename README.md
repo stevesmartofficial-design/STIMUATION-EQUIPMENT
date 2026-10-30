@@ -16,6 +16,8 @@ An interactive training platform for biomedical engineers, biomedical technician
 
 No branding, content or assets were copied from that site.
 
+**Live site:** https://stevesmartofficial-design.github.io/STIMUATION-EQUIPMENT/ (GitHub Pages; works on desktop and mobile)
+
 ## 2. Run it
 
 There is no build step. Use either option:
@@ -65,6 +67,14 @@ The app loads three libraries from public CDNs: QR generation, QR scanning, and 
   - **Run scan** animates the equipment workflow stage by stage in 3D, with sound.
   - The 8 core machines have detailed models. Every other equipment type gets an auto-generated modular 3D model of its parts.
 - **DICOM Viewer** (`#/dicom-viewer`). Load `.dcm` files or folders; they never leave the browser. It is a training / reference viewer, **not a cleared diagnostic device**.
+
+- **CT & MRI Models** (`#/oem`) cover GE HealthCare, Siemens Healthineers and Philips CT and MRI families, for example Revolution Apex, SOMATOM Force, IQon Spectral CT, SIGNA Premier, MAGNETOM Vida / Free.Max and Ingenia Ambition. Each model has:
+  - **published specifications**, each flagged for verification against the current datasheet;
+  - a **stylised 3D replica** built in that model's look: bore size, gantry shape, colours, and the dual-source tube pair on the SOMATOM Force;
+  - a **service-parts (FRU) catalogue** giving each unit's function, failure symptoms, diagnosis, replacement and post-replacement steps, PM and safety notes;
+  - a **hospital part-number register**.
+
+  The platform contains **no logos, no invented part numbers and no official procedures**. Those come only from the manufacturer's service documentation. Product names are trademarks of their owners, and the platform is not affiliated with them.
 
 Requirements: WebGL for 3D, and a modern Chrome or Edge. Sound starts only after you press Power on or Run scan, because browsers block autoplay.
 
